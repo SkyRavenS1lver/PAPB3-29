@@ -1,5 +1,6 @@
 package com.example.gmaps;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -8,7 +9,9 @@ import androidx.core.content.PackageManagerCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,7 +20,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.gmaps.databinding.ActivityMapsBinding;
@@ -26,7 +31,7 @@ import com.google.android.gms.maps.model.PointOfInterest;
 import java.util.Locale;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
-
+    private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
 
@@ -60,11 +65,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMap.addMarker(new MarkerOptions().position(sydney)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.baseline_coronavirus_24))
+                .title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
         setMapOnClick(mMap);
         setPoiClicked(mMap);
         enableMyCurrentLocation();
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.style_json));
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(TAG, "Can't find style. Error: ", e);
+        }
 
     }
 
@@ -100,7 +120,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                           public void onMapLongClick(@NonNull LatLng latLng) {
                                               String text = String.format(Locale.getDefault(), "Lat : %1$.5f, Long: %2$.5f",
                                                       latLng.latitude, latLng.longitude);
-                                              map.addMarker(new MarkerOptions().position(latLng).snippet(text).title("Dropped Pin"));
+                                              map.addMarker(new MarkerOptions().position(latLng)
+                                                      .icon(BitmapDescriptorFactory.fromResource(R.drawable.baseline_coronavirus_24))
+                                                      .snippet(text).title("Dropped Pin"));
                                           }
                                       }
         );
@@ -112,6 +134,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onPoiClick(@NonNull PointOfInterest pointOfInterest) {
                 Marker poiMarker = googleMap.addMarker(new MarkerOptions()
                         .position(pointOfInterest.latLng)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.baseline_coronavirus_24))
                         .title(pointOfInterest.name));
                 poiMarker.showInfoWindow();
             }
