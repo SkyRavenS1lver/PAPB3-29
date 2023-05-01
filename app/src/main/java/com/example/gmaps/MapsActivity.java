@@ -123,6 +123,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                                       .icon(bitmapDescriptorFromVector(context,R.drawable.baseline_airplanemode_active_24))
                                                       .position(latLng)
                                                       .snippet(text).title("Your Location"));
+
                                           }
                                       }
         );
